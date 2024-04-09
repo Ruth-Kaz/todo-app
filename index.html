@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Get Things Done!</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/modern-normalize@latest/modern-normalize.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body class="">
+    <header>
+      <nav>
+        <div class="burger-menu">
+          <!-- Burger menu icon here -->
+        </div>
+      </nav>
+    </header>
+    <main>
+      <section class="section1">
+        <div class="profile-picture">
+          <!-- Profile picture -->
+        </div>
+        <div id="welcome-message" class="welcome-message">
+          <!-- Welcome message, e.g., "Welcome, User!" -->
+        </div>
+      </section>
+      <section class="section2">
+        <h1>Schedule</h1>
+        <div class="calendar">
+          <!-- Calendar -->
+          <button class="next-week-button">Next Week</button>
+          <div class="week-info">
+            <!-- Week information -->
+            <p>Show full Calendar</p>
+          </div>
+        </div>
+      </section>
+      <section class="section3">
+        <div class="todays-tasks">
+          <div class="todays-tasks-header">
+            <h2>Today's Tasks</h2>
+            <button id="removeTaskBtn" class="removeTaskBtn">
+              Remove Completed Tasks
+            </button>
+          </div>
+          <!-- Today's tasks -->
+          <div class="daily-tasks">
+            <ul id="taskList"></ul>
+          </div>
+          <div class="new-task">
+            <input
+              type="text"
+              id="taskInput"
+              class="taskInput"
+              placeholder="Enter new task..."
+            />
+            <button id="addTaskBtn" class="addTaskBtn">+</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>

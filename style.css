@@ -1,0 +1,110 @@
+:root {
+  --background-image-light: linear-gradient(
+    80deg,
+    rgb(207, 232, 204) 0%,
+    rgb(225, 214, 244) 100%
+  );
+
+  --text-color: #7c7c65;
+  --primary: #e2eab5;
+  --secondary: #eef2cc;
+  --third: #ced2a6;
+  --accent-yellow: hsl(48, 100%, 91%);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 90%;
+  margin: 5% auto;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  color: var(--text-color);
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  background-color: var(--accent-yellow);
+}
+
+.calendar {
+  padding: 1.5rem;
+  margin: 0 auto;
+  background-color: var(--primary);
+  border-radius: 1rem;
+}
+
+.todays-tasks {
+  padding: 1.5rem;
+  margin: 0 auto;
+  background-color: var(--secondary);
+  border-radius: 1rem;
+}
+
+.todays-tasks-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  align-items: center;
+}
+.removeTaskBtn {
+  padding: 1rem;
+  background-color: var(--third);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  transition: 0.6s;
+}
+
+.removeTaskBtn:hover {
+  padding: 1.1rem;
+}
+
+.taskInput {
+  background-color: var(--accent-yellow);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem 10rem 1rem 1rem;
+  margin: 2rem 1rem 0 0;
+}
+
+input[type="text"] {
+  padding-left: 1rem;
+  color: var(--text-color);
+}
+
+.addTaskBtn {
+  border-radius: 50%;
+  border: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: var(--third);
+  color: #fff;
+  font-size: 1.4rem;
+  transition: 0.4s;
+}
+
+.addTaskBtn:hover {
+  width: 2.6rem;
+  height: 2.6rem;
+  background-color: var(--text-color);
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+.button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
