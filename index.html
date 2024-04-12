@@ -9,63 +9,153 @@
       href="https://unpkg.com/modern-normalize@latest/modern-normalize.css"
     />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style-fonts.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
   </head>
-  <body class="">
-    <header>
+  <body>
+    <header class="header">
       <nav>
-        <div class="burger-menu">
-          <!-- Burger menu icon here -->
+        <div class="fries-menu">
+          <span class="fries1"></span>
+          <span class="fries2"></span>
         </div>
       </nav>
+      <div class="logo">
+        <a class="in-logo">in</a><a class="focus-logo">:focus</a>
+      </div>
     </header>
     <main>
       <section class="section1">
-        <div class="profile-picture">
-          <!-- Profile picture -->
+        <div class="profile">
+          <img
+            id="profileicon"
+            class="profileIcon"
+            src="./img/profile-icon.png"
+            alt="Profile Picture"
+          />
         </div>
-        <div id="welcome-message" class="welcome-message">
+        <div id="welcomeMessage" class="welcomeMessage">
           <!-- Welcome message, e.g., "Welcome, User!" -->
         </div>
+        <h1>You've completed 2 tasks this week</h1>
       </section>
       <section class="section2">
-        <h1>Schedule</h1>
-        <div class="calendar">
-          <!-- Calendar -->
-          <button class="next-week-button">Next Week</button>
-          <div class="week-info">
-            <!-- Week information -->
-            <p>Show full Calendar</p>
+        <div class="header-search">
+          <h1 id="completionMessage"></h1>
+          <div class="search glass-effect">
+            <i class="fa fa-search"></i>
+            <input
+              id="searchbar"
+              class="searchbar"
+              type="text"
+              placeholder="Looking for a task?"
+              onfocus="this.placeholder = ''"
+            />
           </div>
+        </div>
+        <div class="calendar">
+          <div class="header-calendar">
+            <div id="prevWeek" class="header-nav">
+              <i class="fa-solid fa-chevron-left"></i>
+              <button id="weekBtn" class="calendarBtn">Previous Week</button>
+            </div>
+            <h2 id="currentWeek">
+              Week of <span id="startDate"></span> to <span id="endDate"></span>
+            </h2>
+            <div id="nextWeek" class="header-nav">
+              <button id="weekBtn" class="calendarBtn">Next Week</button>
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          </div>
+          <div class="week">
+            <div class="week">
+              <div id="one" class="day glass-effect"></div>
+              <div class="day glass-effect"></div>
+              <div class="day glass-effect"></div>
+              <div class="day glass-effect"></div>
+              <div class="day glass-effect"></div>
+              <div class="day glass-effect"></div>
+              <div class="day glass-effect"></div>
+            </div>
+          </div>
+          <div class="footer-calendar">
+            <div></div>
+            <button id="showCalendar" class="calendarBtn">Show Calendar</button>
+            <div class="colour-explan">
+              <div id="circle1" class="circle-white"></div>
+              <div id="circle2" class="circle-orange"></div>
+              <div id="circle3" class="circle-purple"></div>
+            </div>
+          </div>
+          <div id="explanation"></div>
         </div>
       </section>
       <section class="section3">
+        <div id="filter" class="filter">
+          <button id="allFilterBtn" class="buttonFilter glass-effect">
+            All
+          </button>
+          <button id="openFilterBtn" class="buttonFilter glass-effect">
+            Open
+          </button>
+          <button id="doneFilterBtn" class="buttonFilter glass-effect">
+            Done
+          </button>
+        </div>
         <div class="todays-tasks">
           <div class="todays-tasks-header">
             <h2>Today's Tasks</h2>
-            <button id="removeTaskBtn" class="removeTaskBtn">
-              Remove Completed Tasks
-            </button>
           </div>
           <!-- Today's tasks -->
           <div class="daily-tasks">
             <ul id="taskList"></ul>
           </div>
           <div class="new-task">
-            <input
-              type="text"
-              id="taskInput"
-              class="taskInput"
-              placeholder="Enter new task..."
-            />
-            <button id="addTaskBtn" class="addTaskBtn">+</button>
+            <form id="addTodoForm">
+              <label id="task-bar">
+                <input
+                  type="text"
+                  id="taskInput"
+                  class="taskInput glass-effect"
+                  autocomplete="off"
+                  name="description"
+                  placeholder="Add new task..."
+              /></label>
+              <button
+                type="submit"
+                id="addTaskBtn"
+                class="addTaskBtn glass-effect"
+              >
+                +
+              </button>
+            </form>
           </div>
+          <button id="removeTaskBtn" class="removeTaskBtn">
+            Remove Checked
+          </button>
         </div>
       </section>
     </main>
+    <footer>
+      <section class="footer-nav">
+        <div class="nav-icon">
+          <i class="fa-solid fa-house"></i>
+          <p>Home</p>
+        </div>
+        <div class="nav-icon">
+          <i class="fa-solid fa-calendar"></i>
+          <p>Calendar</p>
+        </div>
+        <div class="nav-icon">
+          <i class="fa-solid fa-list-check"></i>
+          <p>Tasks</p>
+        </div>
+      </section>
+    </footer>
     <script src="script.js"></script>
+    <script src="script-calendar.js"></script>
   </body>
 </html>
