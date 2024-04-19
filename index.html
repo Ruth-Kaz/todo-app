@@ -45,7 +45,7 @@
       <section class="section2">
         <div class="header-search">
           <h1 id="completionMessage"></h1>
-          <div class="search glass-effect">
+          <div id="searchInput" class="search glass-effect">
             <i class="fa fa-search"></i>
             <input
               id="searchbar"
@@ -84,13 +84,23 @@
           <div class="footer-calendar">
             <div></div>
             <button id="showCalendar" class="calendarBtn">Show Calendar</button>
-            <div class="colour-explan">
-              <div id="circle1" class="circle-white"></div>
-              <div id="circle2" class="circle-orange"></div>
-              <div id="circle3" class="circle-purple"></div>
+            <div class="circle-container">
+              <div>
+                <div id="circle1" class="circle-white"></div>
+                <div id="explanation">Weekday</div>
+              </div>
+
+              <div>
+                <div id="circle2" class="circle-orange"></div>
+                <div id="explanation">Weekday</div>
+              </div>
+
+              <div>
+                <div id="circle3" class="circle-purple"></div>
+                <div id="explanation">Weekday</div>
+              </div>
             </div>
           </div>
-          <div id="explanation"></div>
         </div>
       </section>
       <section class="section3">
@@ -108,6 +118,10 @@
         <div class="todays-tasks">
           <div class="todays-tasks-header">
             <h2>Today's Tasks</h2>
+            <label>
+              <input id="check-all" class="checkbox" type="checkbox" />
+              <span>Mark all complete</span>
+            </label>
           </div>
           <!-- Today's tasks -->
           <div class="daily-tasks">
@@ -134,7 +148,7 @@
             </form>
           </div>
           <button id="removeTaskBtn" class="removeTaskBtn">
-            Remove Checked
+            Delete Completed
           </button>
         </div>
       </section>

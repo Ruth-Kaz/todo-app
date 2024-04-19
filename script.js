@@ -8,9 +8,7 @@ const startedFilterBtn = document.getElementById("startedFilterBtn");
 const doneFilterBtn = document.getElementById("doneFilterBtn");
 const circles = document.querySelectorAll("#circle1, #circle2, #circle3");
 const explanation = document.getElementById("explanation");
-const open = document.getElementById("openFilterBtn");
-const done = document.getElementById("doneFilterBtn");
-const all = document.getElementById("allFilterBtn");
+
 // User ---------------------------------------------------------------------------------------//
 function setWelcomeMessage(username) {
   welcomeMessageElement.textContent = "Welcome, " + username + "!";
@@ -21,53 +19,27 @@ setWelcomeMessage(username);
 //------------------------------------------------------------------------------------------//
 
 let state = {
-  tasks: [
-    {
-      id: Date.now(),
-      description: "Your first task",
-      done: false,
-    },
-  ],
+  tasks: [],
   filter: "",
 };
 
-let explanations = ["Weekday", "Today", "Weekend"];
-
-// Load state from Local Storage -----------------------------------------------------------//
-function loadStateFromLocalStorage() {
-  const loadedSate = localStorage.getItem("task-state-v1");
-  if (loadedSate == null) {
-    return;
-  }
-  state = JSON.parse(loadedSate);
-}
-
-loadStateFromLocalStorage();
 //------------------------------------------------------------------------------------------//
-const localStorageKey = "task-state-v1"; // Define localStorage key
-function updateLocalStorage() {
-  localStorage.setItem(localStorageKey, JSON.stringify(state));
+function filterTasks(done) {
+  filteredTasks = state.tasks.filter((task) => task.done === done);
 }
 
 function render() {
-  const taskList = document.getElementById("taskList"); // Get the task list element
   taskList.innerHTML = ""; // Clear the task list before rendering
 
-  let filteredTasks;
+  let filteredTasks = state.tasks;
 
-  if (state.filter) {
-    // If state.filter has a value (truthy)
-    if (state.filter === "open") {
-      // If state.filter is "open", filter tasks that are not done
-      filteredTasks = state.tasks.filter((task) => !task.done);
-    } else {
-      // If state.filter is not "open", filter tasks that are done
-      filteredTasks = state.tasks.filter((task) => task.done);
-    }
-  } else {
-    // If state.filter is falsy (empty, null, undefined, 0, or false)
-    // Include all tasks without filtering
-    filteredTasks = state.tasks;
+  // If state.filter has a value (truthy)
+  if (state.filter === "open") {
+    // If state.filter is "open", filter tasks that are not done
+    filterTasks(true);
+  } else if (state.filter === "done") {
+    // If state.filter is not "open", filter tasks that are done
+    filterTasks(false);
   }
 
   filteredTasks.forEach((task) => {
@@ -81,8 +53,22 @@ function render() {
     input.checked = task.done;
 
     input.addEventListener("change", () => {
-      task.done = input.checked;
-      localStorage.setItem("task-state-v1", JSON.stringify(state)); // save in local storage
+      fetch("http://localhost:4730/todos/" + task.id, {
+        method: "PATCH",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({
+          done: input.checked,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("data", data);
+          refresh();
+        })
+        .catch((error) => {
+          console.error("Error updating task:", error);
+          refresh();
+        });
       render();
     });
 
@@ -100,46 +86,62 @@ function render() {
 
     taskList.append(li);
   });
+}
+render();
 
-  function removeCheckedTasks() {
-    state.tasks = state.tasks.filter((task) => !task.done);
-    localStorage.setItem("task-state-v1", JSON.stringify(state)); // save in local storage
-    render();
-  }
-
-  // Initialize state from local storage if exists
-  const storedState = localStorage.getItem("task-state-v1");
-  if (storedState) {
-    state = JSON.parse(storedState);
-  }
-
-  // Add event listener to remove button
-  removeTaskBtn.addEventListener("click", removeCheckedTasks);
-
-  // Event listeners for filter buttons
-  allFilterBtn.addEventListener("click", () => {
-    state.filter = "";
-    render();
+// Add event listener to remove button
+removeTaskBtn.addEventListener("click", () => {
+  const tasksToDelete = state.tasks.filter((task) => task.done);
+  tasksToDelete.forEach((task) => {
+    fetch("http://localhost:4730/todos/" + task.id, {
+      method: "DELETE",
+      headers: { "Content-type": "application/json" },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete task");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Task deleted successfully:", data);
+        filterTasks(true);
+        refresh();
+      })
+      .catch((error) => {
+        console.error("Error deleting task:", error);
+        refresh();
+      });
   });
+});
 
-  openFilterBtn.addEventListener("click", () => {
-    state.filter = "open";
-    render();
-  });
+// Event listeners for filter buttons
+allFilterBtn.addEventListener("click", function () {
+  state.filter = "";
+  removeAllActiveClasses();
+  this.classList.add("active");
+  render();
+});
 
-  doneFilterBtn.addEventListener("click", () => {
-    state.filter = "done";
-    render();
-  });
+openFilterBtn.addEventListener("click", function () {
+  state.filter = "open";
+  removeAllActiveClasses();
+  this.classList.add("active");
+  render();
+});
 
-  // Add event delegation for checkbox changes
-  taskList.addEventListener("change", (event) => {
-    const taskId = event.target.closest("li").dataset.taskId;
-    const task = state.tasks.find((task) => task.id == taskId);
-    task.done = event.target.checked;
-    localStorage.setItem("task-state-v1", JSON.stringify(state)); // save in local storage
-    render();
-  });
+doneFilterBtn.addEventListener("click", function () {
+  state.filter = "done";
+  removeAllActiveClasses();
+  this.classList.add("active");
+  render();
+});
+
+// Function to remove "active" class from all filter buttons
+function removeAllActiveClasses() {
+  allFilterBtn.classList.remove("active");
+  openFilterBtn.classList.remove("active");
+  doneFilterBtn.classList.remove("active");
 }
 
 // Form ----------------------------------------------------------------------------//
@@ -169,36 +171,87 @@ addTodoForm.addEventListener("submit", (e) => {
     return;
   }
 
-  const id = Date.now(); // validierung und muss unten nicht mehr eingegeben werden
-
-  state.tasks.push({
-    id,
-    description,
-    done: false,
-  }); // State Update
-
+  fetch("http://localhost:4730/todos", {
+    method: "POST",
+    headers: { "Content-type": "application/json" },
+    body: JSON.stringify({
+      description: description,
+      done: false,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("data", data);
+      // state.tasks = data;
+      refresh();
+    });
   addTodoForm.reset();
-
-  localStorage.setItem("task-state-v1", JSON.stringify(state)); // save in local storage
-
   render();
 });
 
-// Loop through each circle element
-circles.forEach((circle, index) => {
-  // Add an event listener to detect when the mouse enters the circle
-  circle.addEventListener("mouseenter", () => {
-    // When the mouse enters the circle, set the text content of the explanation element
-    // to provide the corresponding explanation based on the circle's index
-    explanation.textContent = explanations[index];
-    // Make the explanation element visible by setting its display property to 'block'
-    explanation.style.display = "block";
-  });
+const EXPLANATIONS_ARRAY = ["Weekday", "Today", "Weekend"];
 
-  // Add an event listener to detect when the mouse leaves the circle
-  circle.addEventListener("mouseleave", () => {
-    // When the mouse leaves the circle, hide the explanation by setting its display property to 'none'
-    explanation.style.display = "none";
+// Loop through each circle element
+// circles.forEach((circle, index) => {
+//   // Add an event listener to detect when the mouse enters the circle
+//   circle.addEventListener("mouseenter", () => {
+//     // When the mouse enters the circle, set the text content of the explanation element
+//     // to provide the corresponding explanation based on the circle's index
+//     explanation.textContent = EXPLANATIONS_ARRAY[index];
+//     // Make the explanation element visible by setting its display property to 'block'
+//     explanation.style.display = "block";
+//   });
+
+//   // Add an event listener to detect when the mouse leaves the circle
+//   circle.addEventListener("mouseleave", () => {
+//     // When the mouse leaves the circle, hide the explanation by setting its display property to 'none'
+//     explanation.style.display = "none";
+//   });
+// });
+// render();
+
+//GET
+function refresh() {
+  fetch("http://localhost:4730/todos")
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("data", data);
+      state.tasks = data;
+      render();
+    });
+}
+
+refresh();
+
+//input once clicked check all boxes done
+//id input
+//eventlistener click
+//loop
+//
+
+const checkAllBoxes = document.getElementById("check-all");
+
+checkAllBoxes.addEventListener("click", () => {
+  const tasksToCheck = state.tasks.filter((task) => !task.done);
+  tasksToCheck.forEach((task) => {
+    // Find the corresponding checkbox based on task ID
+    task.done = true;
+    fetch("http://localhost:4730/todos/" + task.id, {
+      method: "PATCH",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({
+        done: task.done,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("data", data);
+        refresh();
+      })
+      .catch((error) => {
+        console.error("Error updating task:", error);
+        refresh();
+      });
   });
+  render();
 });
-render();
