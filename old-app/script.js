@@ -10,18 +10,28 @@ const circles = document.querySelectorAll("#circle1, #circle2, #circle3");
 const explanation = document.getElementById("explanation");
 
 // User ---------------------------------------------------------------------------------------//
-function setWelcomeMessage(username) {
-  welcomeMessageElement.textContent = "Welcome, " + username + "!";
-}
 
-const username = "Minty";
-setWelcomeMessage(username);
 //------------------------------------------------------------------------------------------//
 
 let state = {
   tasks: [],
   filter: "",
+  error: "",
 };
+
+const LOCAL_STORAGE_KEY = "task-state-v1"; // Define localStorage key
+
+// Load state from Local Storage -----------------------------------------------------------//
+function loadStateFromLocalStorage() {
+  const loadedSate = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (loadedSate == null) {
+    return;
+  }
+  state = JSON.parse(loadedSate);
+}
+
+loadStateFromLocalStorage();
+//------------------------------------------------------------------------------------------//
 
 //------------------------------------------------------------------------------------------//
 function filterTasks(done) {
@@ -32,14 +42,13 @@ function render() {
   taskList.innerHTML = ""; // Clear the task list before rendering
 
   let filteredTasks = state.tasks;
-
   // If state.filter has a value (truthy)
   if (state.filter === "open") {
     // If state.filter is "open", filter tasks that are not done
-    filterTasks(true);
+    filteredTasks = state.tasks.filter((task) => !task.done);
   } else if (state.filter === "done") {
     // If state.filter is not "open", filter tasks that are done
-    filterTasks(false);
+    filteredTasks = state.tasks.filter((task) => task.done);
   }
 
   filteredTasks.forEach((task) => {
@@ -66,8 +75,8 @@ function render() {
           refresh();
         })
         .catch((error) => {
-          console.error("Error updating task:", error);
-          refresh();
+          state.error = "Oh no! We can't update the task:";
+          render();
         });
       render();
     });
@@ -86,6 +95,12 @@ function render() {
 
     taskList.append(li);
   });
+  if (state.error != "") {
+    const p = document.createElement("p");
+    p.textContent = state.error;
+    error.append(p);
+    return;
+  }
 }
 render();
 
@@ -95,14 +110,8 @@ removeTaskBtn.addEventListener("click", () => {
   tasksToDelete.forEach((task) => {
     fetch("http://localhost:4730/todos/" + task.id, {
       method: "DELETE",
-      headers: { "Content-type": "application/json" },
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to delete task");
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((data) => {
         console.log("Task deleted successfully:", data);
         filterTasks(true);
@@ -112,6 +121,7 @@ removeTaskBtn.addEventListener("click", () => {
         console.error("Error deleting task:", error);
         refresh();
       });
+    render();
   });
 });
 
@@ -182,8 +192,11 @@ addTodoForm.addEventListener("submit", (e) => {
     .then((response) => response.json())
     .then((data) => {
       console.log("data", data);
-      // state.tasks = data;
       refresh();
+    })
+    .catch((error) => {
+      state.error = "Opsie! The task won't post. :(";
+      render();
     });
   addTodoForm.reset();
   render();
@@ -211,47 +224,83 @@ const EXPLANATIONS_ARRAY = ["Weekday", "Today", "Weekend"];
 // render();
 
 //GET
+let currentSortMethod = "alphabetical";
+
 function refresh() {
   fetch("http://localhost:4730/todos")
     .then((response) => response.json())
     .then((data) => {
       console.log("data", data);
-      state.tasks = data;
+
+      // Sort data based on the current sorting method
+      if (currentSortMethod === "alphabetical") {
+        data.sort((a, b) => {
+          if (a.description < b.description) {
+            return -1;
+          }
+          if (a.description > b.description) {
+            return 1;
+          }
+          return 0;
+        });
+      } else if (currentSortMethod === "id") {
+        data.sort((a, b) => a.id - b.id);
+      }
+
+      state.tasks = data; // Assign the sorted array to state.tasks
+      render(); // Render the sorted tasks
+    })
+    .catch((error) => {
+      state.error = "Something went wrong! :(";
       render();
     });
 }
 
 refresh();
 
-//input once clicked check all boxes done
-//id input
-//eventlistener click
-//loop
-//
+// Add event listener to the parent element
+document
+  .querySelector(".dropdown-content")
+  .addEventListener("click", function (event) {
+    event.preventDefault();
+    const selectedOption = event.target.getAttribute("data-value");
+
+    if (selectedOption === "alphabetical" || selectedOption === "id") {
+      // Handle click event for alphabetical or ID option
+      currentSortMethod = selectedOption;
+      refresh();
+
+      // Update the dropdown button text to reflect the current selection
+      document.querySelector(".dropbtn").textContent =
+        "Sort by: " +
+        (selectedOption === "alphabetical" ? "Alphabetical" : "ID");
+    }
+  });
 
 const checkAllBoxes = document.getElementById("check-all");
 
-checkAllBoxes.addEventListener("click", () => {
-  const tasksToCheck = state.tasks.filter((task) => !task.done);
-  tasksToCheck.forEach((task) => {
-    // Find the corresponding checkbox based on task ID
-    task.done = true;
-    fetch("http://localhost:4730/todos/" + task.id, {
-      method: "PATCH",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({
-        done: task.done,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("data", data);
-        refresh();
+function handleCheckAll() {
+  const isChecked = checkAllBoxes.checked;
+
+  state.tasks.forEach((task) => {
+    if (task.done !== isChecked) {
+      task.done = isChecked;
+      fetch("http://localhost:4730/todos/" + task.id, {
+        method: "PATCH",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({
+          done: isChecked,
+        }),
       })
-      .catch((error) => {
-        console.error("Error updating task:", error);
-        refresh();
-      });
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Task updated:", data);
+          refresh();
+        })
+        .catch((error) => {
+          state.error = "Error updating task:";
+          render();
+        });
+    }
   });
-  render();
-});
+}

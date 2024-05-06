@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Get Things Done!</title>
+    <title>Stay in:focus!</title>
     <link
       rel="stylesheet"
       href="https://unpkg.com/modern-normalize@latest/modern-normalize.css"
@@ -28,6 +28,7 @@
       </div>
     </header>
     <main>
+      <div id="error"></div>
       <section class="section1">
         <div class="profile">
           <img
@@ -37,8 +38,11 @@
             alt="Profile Picture"
           />
         </div>
-        <div id="welcomeMessage" class="welcomeMessage">
-          <!-- Welcome message, e.g., "Welcome, User!" -->
+
+        <div id="app">
+          <h2 class="welcomeMessage">
+            Welcome back <strong>{{ userName }}</strong>!
+          </h2>
         </div>
         <h1>You've completed 2 tasks this week</h1>
       </section>
@@ -117,13 +121,27 @@
         </div>
         <div class="todays-tasks">
           <div class="todays-tasks-header">
-            <h2>Today's Tasks</h2>
+            <h2>My Tasks</h2>
             <label>
-              <input id="check-all" class="checkbox" type="checkbox" />
+              <input
+                type="checkbox"
+                id="check-all"
+                class="checkbox"
+                onchange="handleCheckAll()"
+              />
               <span>Mark all complete</span>
             </label>
           </div>
           <!-- Today's tasks -->
+          <div class="dropdown">
+            <div class="dropdown-container glass-effect">
+              <button class="dropbtn">Sort by</button>
+            </div>
+            <div class="dropdown-content glass-effect">
+              <a href="#" data-value="alphabetical">Alphabetical</a>
+              <a href="#" data-value="id">Date</a>
+            </div>
+          </div>
           <div class="daily-tasks">
             <ul id="taskList"></ul>
           </div>
@@ -169,6 +187,7 @@
         </div>
       </section>
     </footer>
+    <script src="https://unpkg.com/vue@latest"></script>
     <script src="script.js"></script>
     <script src="script-calendar.js"></script>
   </body>

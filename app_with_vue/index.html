@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stay in:focus!</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/modern-normalize@latest/modern-normalize.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style-fonts.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Header -->
+      <header class="header">
+        <nav>
+          <div class="fries-menu">
+            <span class="fries1"></span>
+            <span class="fries2"></span>
+          </div>
+        </nav>
+        <div class="logo">
+          <a class="in-logo">in</a><a class="focus-logo">:focus</a>
+        </div>
+      </header>
+      <!-- Header -->
+
+      <main>
+        <!-- ErrorHandling -->
+        <div id="error"></div>
+
+        <!-- Welcome Section -->
+        <section class="section1">
+          <div class="profile">
+            <img
+              id="profileicon"
+              class="profileIcon"
+              src="../img/profile-icon.png"
+              alt="Profile Picture"
+            />
+          </div>
+
+          <div id="app">
+            <h2 class="welcomeMessage">
+              <!-- Welcome back <strong>{{ userName }}</strong>! -->
+            </h2>
+          </div>
+          <h1>You've completed {{completedTasks}} task(s) this week</h1>
+        </section>
+
+        <!-- Search Section -->
+        <section class="section2">
+          <div class="header-search">
+            <h1 id="completionMessage"></h1>
+            <div class="search glass-effect">
+              <i class="fa fa-search"></i>
+              <input
+                class="searchbar"
+                type="text"
+                placeholder="Looking for a task?"
+                onfocus="this.placeholder = ''"
+                :input="searchQuery"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Daily Tasks Section -->
+        <section class="section3">
+          <!-- FITLTER BUTTONS -->
+          <menu class="filter">
+            <button
+              @click="changeFilter('all')"
+              class="buttonFilter glass-effect"
+            >
+              All
+            </button>
+            <button
+              @click="changeFilter('open')"
+              class="buttonFilter glass-effect"
+            >
+              Open
+            </button>
+            <button
+              @click="changeFilter('done')"
+              class="buttonFilter glass-effect"
+            >
+              Done
+            </button>
+          </menu>
+
+          <!-- TODAYS TASK HEADER  -->
+          <div class="todays-tasks">
+            <ul class="todays-tasks-header">
+              <li><h2>My Daily Tasks</h2></li>
+
+              <li>
+                <input
+                  type="checkbox"
+                  id="check-all"
+                  class="checkbox"
+                  onchange="handleCheckAll()"
+                />
+                <label for="check-all">Mark all </label>
+              </li>
+            </ul>
+
+            <!-- Today's tasks -->
+            <div class="dropdown">
+              <div class="dropdown-container glass-effect">
+                <button class="dropbtn">Sort by</button>
+              </div>
+              <div class="dropdown-content glass-effect">
+                <a href="#" @click.prevent="sortBy('alphabetical')"
+                  >Alphabetical</a
+                >
+                <a href="#" @click.prevent="sortBy('id')">Date</a>
+              </div>
+            </div>
+
+            <div class="daily-tasks">
+              <ul>
+                <!-- Are there tasks in filterTasks? -->
+                <template v-if="filterTasks.length > 0">
+                  <li v-for="task of filterTasks" :key="task.id">
+                    <input
+                      type="checkbox"
+                      v-model="task.done"
+                      :id="getHtmlId(task.id)"
+                      @change="changeCheckbox(task)"
+                    />
+                    <!-- Toggle between label and input field based on editing flag -->
+                    <template v-if="!task.editing">
+                      <label
+                        :for="getHtmlId(task.id)"
+                        @dblclick="editTask(task)"
+                        @touchstart="startTimer(task)"
+                        @touchend="endTimer"
+                        @mousedown="startTimer(task)"
+                        @mouseup="endTimer"
+                        @mouseleave="cancelTimer"
+                      >
+                        {{ task.description }}
+                      </label>
+                    </template>
+                    <template v-else>
+                      <input
+                        type="text"
+                        v-model="task.description"
+                        @blur="saveTask(task)"
+                        @keyup.enter="saveTask(task)"
+                        class="input-edit"
+                      />
+                    </template>
+                  </li>
+                </template>
+                <!-- If no tasks, display default text message -->
+                <template v-else>
+                  <li>Nothing's here yet!</li>
+                </template>
+              </ul>
+            </div>
+
+            <div class="new-task">
+              <form id="addTodoForm">
+                <label id="task-bar">
+                  <input
+                    type="text"
+                    id="taskInput"
+                    class="taskInput glass-effect"
+                    autocomplete="off"
+                    name="description"
+                    v-model="newDescription"
+                    placeholder="Add new task..."
+                /></label>
+                <button
+                  type="submit"
+                  id="addTaskBtn"
+                  @click.prevent="addTask"
+                  class="addTaskBtn glass-effect"
+                >
+                  +
+                </button>
+              </form>
+            </div>
+
+            <!-- REMOVE BUTTON -->
+            <button @click="removeTask(index)" class="removeTaskBtn">
+              Delete Completed
+            </button>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <section class="footer-nav">
+          <div class="nav-icon">
+            <i class="fa-solid fa-house"></i>
+            <p>Home</p>
+          </div>
+          <div class="nav-icon">
+            <i class="fa-solid fa-calendar"></i>
+            <p>Calendar</p>
+          </div>
+          <div class="nav-icon">
+            <i class="fa-solid fa-list-check"></i>
+            <p>Tasks</p>
+          </div>
+        </section>
+      </footer>
+    </div>
+    <script src="https://unpkg.com/vue@latest"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
